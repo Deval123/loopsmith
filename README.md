@@ -103,4 +103,4 @@ Routing by [GraphHopper](https://github.com/graphhopper/graphhopper). Local infe
 
 ## License
 
-To be chosen before publishing (MIT or Apache-2.0 are the usual picks for a project like this).
+[MIT](LICENSE)
