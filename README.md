@@ -9,6 +9,15 @@ open-source routing engine on OpenStreetMap data. Nothing leaves your machine.
 Built for the DEV Hacktoberfest Open-Source AI Challenge, week 1 ("Touch Grass"): the point is to get people
 off the screen. The screen is used for ten seconds, then you go outside.
 
+## Example
+
+"A 6 km easy run, ending where I start", from a fictitious start point (the Eiffel Tower), gives this
+5.5 km loop:
+
+![A 5.5 km loop starting at the Eiffel Tower, displayed in geojson.io](docs/example.png)
+
+Map: [geojson.io](https://geojson.io) (© Mapbox, © OpenStreetMap contributors).
+
 ## How it works
 
 ```
