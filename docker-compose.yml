@@ -1,15 +1,16 @@
 # Local services only: both ports are published on loopback, never on the network.
-# Pin both images to a specific tag (or digest) before you rely on this.
+# Images are pinned by digest so the stack restarts identically. To update, pull the new image,
+# read its release notes, then replace the digest (docker image inspect <image> --format '{{index .RepoDigests 0}}').
 services:
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama@sha256:69f27594d8127cb43db1edcafa5e2d3cd8f88bdbc54a2cf3ceb11b8d138a24b1  # pulled 2026-10-08, was :latest
     ports:
       - "127.0.0.1:11434:11434"
     volumes:
       - ollama-data:/root/.ollama
 
   graphhopper:
-    image: israelhikingmap/graphhopper:latest
+    image: israelhikingmap/graphhopper@sha256:d44d97b1e2db318e97a2ed752f7ad04daf70aa5768305786bc38acb3c553adc9  # GraphHopper 12.0, pulled 2026-10-08, was :latest
     ports:
       - "127.0.0.1:8989:8989"
     volumes:

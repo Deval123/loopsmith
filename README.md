@@ -72,7 +72,7 @@ curl -s http://127.0.0.1:8080/api/routes \
 - Your start point is sensitive (it is usually your home). `*.gpx` is git-ignored; use a fictitious start
   point in screenshots, demos and posts.
 - Check the licence of the model you pull before redistributing anything built on it.
-- Pin the Docker images to a tag or digest instead of `latest`.
+- The Docker images are pinned by digest in `docker-compose.yml`. Update them deliberately, not through `latest`.
 
 ## Tests
 
@@ -89,7 +89,7 @@ escaping). The Ollama and GraphHopper clients are not covered by automated tests
 - [x] Round-trip routing, best of N candidate seeds, GPX export
 - [x] Length calibration: one corrective pass when the best loop is more than 10% off
 - [x] Prefer round loops over thin out-and-backs
-- [ ] Verify `graphhopper/config.yml` and the compose command against the pinned GraphHopper version
+- [x] Verify `graphhopper/config.yml` and the compose command against the pinned GraphHopper version (12.0)
 - [ ] Map preview in the web page (Leaflet bundled locally, no CDN)
 - [ ] "Hunt for the good stuff": prefer paths, parks and viewpoints with a GraphHopper custom model
 - [ ] Contract tests for both clients with a mock HTTP server
