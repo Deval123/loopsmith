@@ -4,7 +4,7 @@ graphhopper:
   datareader.file: /data/region.osm.pbf
   graph.location: /data/graph-cache
   import.osm.ignored_highways: motorway,trunk
-  graph.encoded_values: foot_access, foot_average_speed, foot_priority, road_class
+  graph.encoded_values: foot_access, foot_average_speed, foot_priority, road_class, hike_rating, foot_road_access, mtb_rating, road_environment, ferry_speed
   profiles:
     - name: foot
       custom_model_files: [foot.json]
