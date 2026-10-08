@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Loopsmith</title>
+  <style>
+    :root { color-scheme: light dark; --bg:#fbfaf6; --fg:#1d2b1f; --accent:#2f7d46; --card:#fff; --line:#d9d6c8; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#141a15; --fg:#e8efe9; --accent:#6cc287; --card:#1c241e; --line:#33403a; } }
+    body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui, sans-serif; }
+    main { max-width: 36rem; margin: 0 auto; padding: 2rem 1rem; }
+    h1 { font-size: 1.6rem; margin: 0 0 .25rem; }
+    p.lead { margin: 0 0 1.5rem; opacity: .8; }
+    label { display:block; margin: .75rem 0 .25rem; font-weight: 600; }
+    textarea, input { width:100%; box-sizing:border-box; padding:.6rem; border:1px solid var(--line);
+      border-radius:.5rem; background:var(--card); color:var(--fg); font:inherit; }
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap:.75rem; }
+    button { margin-top:1rem; padding:.7rem 1.2rem; border:0; border-radius:.5rem; background:var(--accent);
+      color:#fff; font:inherit; font-weight:600; cursor:pointer; }
+    button:disabled { opacity:.6; cursor:wait; }
+    #result { margin-top:1.5rem; padding:1rem; border:1px solid var(--line); border-radius:.5rem;
+      background:var(--card); display:none; }
+    #error { color:#b3261e; margin-top:1rem; }
+    small { opacity:.7; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Loopsmith</h1>
+  <p class="lead">Describe your run or walk. Get a GPX loop. Everything stays on this machine.</p>
+
+  <form id="form">
+    <label for="prompt">What do you want to do?</label>
+    <textarea id="prompt" rows="3" maxlength="300" placeholder="A 6 km easy run, ending where I start"></textarea>
+
+    <div class="row">
+      <div><label for="lat">Start latitude</label><input id="lat" inputmode="decimal" placeholder="48.8584"></div>
+      <div><label for="lon">Start longitude</label><input id="lon" inputmode="decimal" placeholder="2.2945"></div>
+    </div>
+    <small>Your start point is sent only to your own local server.</small>
+
+    <button id="go" type="submit">Build my loop</button>
+  </form>
+
+  <p id="error" role="alert"></p>
+  <section id="result">
+    <strong id="name"></strong>
+    <div id="stats"></div>
+    <button id="download" type="button">Download GPX</button>
+  </section>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  let gpx = "";
+
+  $("form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    $("error").textContent = "";
+    $("result").style.display = "none";
+    $("go").disabled = true;
+    try {
+      const res = await fetch("/api/routes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: $("prompt").value,
+          lat: Number($("lat").value),
+          lon: Number($("lon").value)
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Request failed");
+      gpx = data.gpx;
+      $("name").textContent = data.name;
+      $("stats").textContent = data.distanceKm.toFixed(1) + " km, +" + Math.round(data.ascendMeters) + " m";
+      $("result").style.display = "block";
+    } catch (e) {
+      $("error").textContent = e.message;   // textContent: never inject server text as HTML
+    } finally {
+      $("go").disabled = false;
+    }
+  });
+
+  $("download").addEventListener("click", () => {
+    const url = URL.createObjectURL(new Blob([gpx], { type: "application/gpx+xml" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = "loop.gpx"; a.click();
+    URL.revokeObjectURL(url);
+  });
+</script>
+</body>
+</html>

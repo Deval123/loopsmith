@@ -1,0 +1,13 @@
+target/
+.idea/
+.vscode/
+*.iml
+.env
+
+# Map data and caches are large and re-downloadable
+graphhopper/*.pbf
+graphhopper/*.md5
+graphhopper/graph-cache/
+
+# Generated tracks can reveal where you live: never commit them
+*.gpx

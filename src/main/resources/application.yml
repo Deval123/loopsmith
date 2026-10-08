@@ -1,0 +1,21 @@
+server:
+  # Local tool: listen on loopback only. Change deliberately, and add authentication first, if you expose it.
+  address: 127.0.0.1
+  port: 8080
+
+spring:
+  application:
+    name: loopsmith
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+
+loopsmith:
+  ollama:
+    base-url: http://127.0.0.1:11434
+    model: qwen2.5:3b          # any small open-weight model that supports JSON-schema output
+    timeout-ms: 20000
+  graphhopper:
+    base-url: http://127.0.0.1:8989
+    timeout-ms: 15000
+    candidate-seeds: 3

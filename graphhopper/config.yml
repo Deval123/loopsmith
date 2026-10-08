@@ -1,0 +1,20 @@
+# Minimal GraphHopper configuration: pedestrian routing only.
+# Option names change between GraphHopper versions: check this file against the docs of the image tag you pin.
+graphhopper:
+  datareader.file: /data/region.osm.pbf
+  graph.location: /data/graph-cache
+  import.osm.ignored_highways: motorway,trunk
+  graph.encoded_values: foot_access, foot_average_speed, foot_priority, road_class
+  profiles:
+    - name: foot
+      custom_model_files: [foot.json]
+
+server:
+  application_connectors:
+    - type: http
+      port: 8989
+      bind_host: 0.0.0.0     # inside the container only; compose publishes it on 127.0.0.1
+  admin_connectors:
+    - type: http
+      port: 8990
+      bind_host: 127.0.0.1   # not published
