@@ -73,7 +73,7 @@
       if (!res.ok) throw new Error(data.error || "Request failed");
       gpx = data.gpx;
       $("name").textContent = data.name;
-      $("stats").textContent = data.distanceKm.toFixed(1) + " km, +" + Math.round(data.ascendMeters) + " m";
+      $("stats").textContent = data.distanceKm.toFixed(1) + " km" + (data.ascendMeters > 0 ? ", +" + Math.round(data.ascendMeters) + " m" : "");
       $("result").style.display = "block";
     } catch (e) {
       $("error").textContent = e.message;   // textContent: never inject server text as HTML
