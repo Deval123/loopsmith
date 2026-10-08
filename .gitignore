@@ -4,10 +4,9 @@ target/
 *.iml
 .env
 
-# Map data and caches are large and re-downloadable
-graphhopper/*.pbf
-graphhopper/*.md5
-graphhopper/graph-cache/
+# Map data and routing caches are large and re-downloadable: only the config is versioned
+graphhopper/*
+!graphhopper/config.yml
 
 # Generated tracks can reveal where you live: never commit them
 *.gpx
