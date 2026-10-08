@@ -18,4 +18,4 @@ loopsmith:
   graphhopper:
     base-url: http://127.0.0.1:8989
     timeout-ms: 15000
-    candidate-seeds: 3
+    candidate-seeds: 5

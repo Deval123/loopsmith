@@ -14,13 +14,21 @@ off the screen. The screen is used for ten seconds, then you go outside.
 ```
  free text ──► OllamaIntentParser ──► RouteIntent (validated) ──► GraphHopper round trip ──► GPX
                (local open-weight       distance 1–42 km,          (OpenStreetMap, foot       (XML-escaped,
-                model, JSON schema)     RUN | WALK only)            profile, 3 candidate       no personal data)
-                                                                    seeds, closest wins)
+                model, JSON schema)     RUN | WALK only)            profile, 5 candidate       no personal data)
+                                                                    seeds, roundest wins)
 ```
 
 The model's only job is to turn text into two fields. It never chooses coordinates, never calls a tool, and
 its output is validated by `RouteIntent` before anything else happens. If the model is unavailable or
 returns something invalid, a deterministic parser takes over (`RuleBasedIntentParser`).
+
+### Choosing the loop
+
+The routing engine treats the requested distance as a hint and tends to undershoot, and its loops can be
+thin: out along one street, back along the next. So the service builds several candidates (one per seed),
+and keeps the roundest one among those within 10% of the requested length (`RouteShape.roundness`, the
+isoperimetric quotient: 1 for a circle, close to 0 for an out-and-back). If none is close enough, it asks
+once more with a corrected distance, capped at 1.5x.
 
 ## Quick start
 
@@ -70,6 +78,8 @@ escaping). The Ollama and GraphHopper clients are not covered by automated tests
 
 - [x] Intent extraction with a local model and a deterministic fallback
 - [x] Round-trip routing, best of N candidate seeds, GPX export
+- [x] Length calibration: one corrective pass when the best loop is more than 10% off
+- [x] Prefer round loops over thin out-and-backs
 - [ ] Verify `graphhopper/config.yml` and the compose command against the pinned GraphHopper version
 - [ ] Map preview in the web page (Leaflet bundled locally, no CDN)
 - [ ] "Hunt for the good stuff": prefer paths, parks and viewpoints with a GraphHopper custom model

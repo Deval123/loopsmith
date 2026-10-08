@@ -1,5 +1,6 @@
 package loopsmith.api;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -10,6 +11,7 @@ import loopsmith.LoopsmithProperties;
 import loopsmith.core.GpxWriter;
 import loopsmith.core.IntentParser;
 import loopsmith.core.RouteIntent;
+import loopsmith.core.RouteShape;
 import loopsmith.routing.RouteResult;
 import loopsmith.routing.RoutingClient;
 import loopsmith.routing.RoutingException;
@@ -38,24 +40,39 @@ public class RouteService {
         RouteIntent intent = parser.parse(prompt);
         double target = intent.distanceMeters();
 
-        RouteResult best = closest(candidates(lat, lon, intent, target), target)
+        List<RouteResult> pool = new ArrayList<>(candidates(lat, lon, intent, target));
+        RouteResult closest = closest(pool, target)
                 .orElseThrow(() -> new RoutingException("No candidate route could be built"));
 
-        // The engine treats the distance as a hint and usually undershoots. When the best loop is off by more
-        // than the tolerance, ask once more with a corrected distance and keep whichever loop is closer.
-        double error = Math.abs(best.distanceMeters() - target) / target;
-        if (error > TOLERANCE && best.distanceMeters() > 0) {
-            double factor = Math.max(1 / MAX_CORRECTION, Math.min(MAX_CORRECTION, target / best.distanceMeters()));
-            Optional<RouteResult> retry = closest(candidates(lat, lon, intent, target * factor), target);
-            if (retry.isPresent()) {
-                best = closest(List.of(best, retry.get()), target).orElse(best);
-            }
+        // The engine treats the distance as a hint and usually undershoots. When no loop is within the
+        // tolerance, ask again with a corrected distance and add those loops to the pool.
+        if (!withinTolerance(closest, target) && closest.distanceMeters() > 0) {
+            double factor = Math.max(1 / MAX_CORRECTION, Math.min(MAX_CORRECTION, target / closest.distanceMeters()));
+            pool.addAll(candidates(lat, lon, intent, target * factor));
         }
+
+        RouteResult best = choose(pool, target);
 
         String name = String.format(Locale.ROOT, "%s loop, %.1f km", intent.activity().name().toLowerCase(Locale.ROOT),
                 best.distanceMeters() / 1000.0);
         return new RouteOutcome(name, best.distanceMeters() / 1000.0, best.ascendMeters(),
                 GpxWriter.write(name, best.points()));
+    }
+
+    /**
+     * Among the loops that are close enough to the requested distance, prefer the roundest one (it retraces
+     * the fewest streets). If none is close enough, fall back to the one closest in length.
+     */
+    private static RouteResult choose(Collection<RouteResult> pool, double target) {
+        return pool.stream()
+                .filter(r -> withinTolerance(r, target))
+                .max(Comparator.comparingDouble(r -> RouteShape.roundness(r.points())))
+                .or(() -> closest(pool, target))
+                .orElseThrow(() -> new RoutingException("No candidate route could be built"));
+    }
+
+    private static boolean withinTolerance(RouteResult route, double target) {
+        return Math.abs(route.distanceMeters() - target) / target <= TOLERANCE;
     }
 
     /** Several seeds give several different loops. */
