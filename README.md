@@ -101,6 +101,11 @@ Map data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright
 Routing by [GraphHopper](https://github.com/graphhopper/graphhopper). Local inference by
 [Ollama](https://ollama.com).
 
+Default model: `qwen2.5:3b`, released under the
+[Qwen Research License](https://ollama.com/library/qwen2.5:3b/blobs/b5c0e5cf74cf) (research and evaluation,
+non-commercial). The model is not part of this repository; Ollama downloads it on your machine.
+For commercial use, change `loopsmith.ollama.model` in `application.yml` to a model whose license allows it.
+
 ## License
 
 [MIT](LICENSE)
